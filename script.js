@@ -110,6 +110,9 @@ continueBtn.onclick = () => {
     headerScore();
 }
 
+
+
+
 let questionCount = 0;
 let questionNumb = 1;
 let userScore = 0;
@@ -220,3 +223,77 @@ function showResultBox(){
 }
 
 
+
+// Timer Variables
+let timer;
+let timeLeft = 600; // 10 minutes in seconds
+
+function startTimer() {
+    const timerDisplay = document.querySelector(".time-display");
+    timer = setInterval(() => {
+        timeLeft--;
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        timerDisplay.textContent = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+        
+        // Blink the next button when time is almost up (last minute)
+        if (timeLeft <= 60) {
+            nextBtn.classList.add("blink");
+        }
+
+        // End the quiz when time is up
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            showResultBox();
+        }
+    }, 1000);
+}
+
+function stopTimer() {
+    clearInterval(timer);
+}
+
+// Updated continue button logic to start the timer when the quiz begins
+continueBtn.onclick = () => {
+    quizSection.classList.add('active');
+    popupInfo.classList.remove("active");
+    main.classList.remove("active");
+    quizBox.classList.add('active');
+
+    startTimer(); // Start the timer
+
+    showQuestions(0);
+    questionCounter(1);
+    headerScore();
+}
+
+// Updated showResultBox function to stop the timer and hide the time display
+function showResultBox() {
+    stopTimer(); // Stop the timer
+    document.querySelector(".time-display").style.display = "none"; // Hide the time display
+    quizBox.classList.remove('active');
+    resultBox.classList.add('active');
+    const scoreText = document.querySelector(".score-text");
+    scoreText.textContent = `Your score ${userScore} out of ${questions.length}`;
+
+    const circularProgressBar = document.querySelector('.circular-progrress');
+    const progressValue = document.querySelector('.progress-value');
+    let ProgressStartValue = 0;
+    let progressEndValue = Math.round((userScore / questions.length) * 100);
+    let speed = 20;
+ 
+    let progress = setInterval(() => {
+        ProgressStartValue++;
+        progressValue.textContent = `${ProgressStartValue}%`;
+        circularProgressBar.style.background = `conic-gradient(#c40094 ${ProgressStartValue * 3.6}deg, rgba(255, 255, 255, 0.1) 0deg)`;
+        
+        if (ProgressStartValue >= progressEndValue) {
+            clearInterval(progress);
+        } 
+    }, speed);
+}
+
+// Add functionality to the "Try Again" button
+document.querySelector(".tryAgain-btn").onclick = () => {
+    location.reload(); // Reload the page to restart the quiz from the beginning
+}
